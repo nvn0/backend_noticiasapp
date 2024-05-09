@@ -3,6 +3,9 @@ from flask_cors import CORS
 from azureapi import *
 import json
 import os
+import time
+import requests
+import threading
 
 app = Flask(__name__)
 
@@ -17,38 +20,116 @@ def carregar_json_para_dicionario(caminho_arquivo):
 
 caminho_arquivo_json = 'noticias.json'
 dicionario = carregar_json_para_dicionario(caminho_arquivo_json)
-print(dicionario)
+print("DICIONARIO: ", dicionario)
 
 lista_final = []
 
 
+def get_noticias():
+
+    
+
+    try:
+        r = requests.get("api_url")
+        print(r)
+
+
+        dados = r.json()
+        print(dados)
+    except:
+        print("erro ao aceder à api")
+    else:
+        noticia = {
+            "Title":dados["Title"],
+            "Classification": "",
+            "Content": dados["Content"],
+            "URL": dados["URL"]
+        }
+        
+        lista_final.append(noticia)
+        
+    time.sleep(700)
+    
+    lista_final.clear()
+
+
+
+
+
+
+
+
+
+
+x = 10
 
 for i in dicionario:      
-    print(i)
-    receber_classificacao = get_classification(i["Content"])
-    print("clasificacao do azure:", receber_classificacao)
+
+
+    receber_classificacao = ""
+    #receber_classificacao = get_classification(i["Content"])
+    #print("clasificacao do azure:", receber_classificacao)
     
     classificacao = ""
     
-    if receber_classificacao != 'Accept':
+    #if receber_classificacao != 'Accept':
+    #    classificacao = "Triste"
+    #else:
+    #    classificacao = "Feliz"
+    
+    
+    
+    if x % 2 == 0:
         classificacao = "Triste"
     else:
         classificacao = "Feliz"
     
-    print(classificacao)
+    #print(classificacao)
 
-    resposta = {
+    noticia = {
         "Title":i["Title"],
         "Classification": classificacao,
         "Content": i["Content"],
         "URL": i["URL"]
     }
     
-    lista_final.append(resposta)
+    lista_final.append(noticia)
+    x += 1
+    print(x)
     print(lista_final)
     
-    print("Final", resposta)
+    #print("Final", resposta)
 
+
+
+noticias_felizes = []
+noticias_tristes = []
+
+def filtar_noticias():
+
+    noticias_felizes.clear()
+    noticias_tristes.clear()
+
+
+    for obj in lista_final:
+        # Verificar o valor do parâmetro "Classification"
+        if obj["Classification"] == "Feliz":
+            noticias_felizes.append(obj)
+        elif obj["Classification"] == "Triste":
+            noticias_tristes.append(obj)
+            
+    time.sleep(720)
+
+
+
+
+
+
+
+
+
+threading.Thread(target=get_noticias, daemon=True).start()
+threading.Thread(target=filtar_noticias, daemon=True).start()
 
 
 @app.route('/')
@@ -56,19 +137,31 @@ def homepage():
     return 'The API is running...'
 
 
-@app.route('/resposta1')
-def resposta1():
+@app.route('/noticias')
+def noticias():
 
+    
     
     
     return jsonify(lista_final)
 
 
-@app.route('/resposta2')
-def resposta2():
+@app.route('/feliz')
+def nfelizes():
     
-    return '<p>Olá</p>'
-    #return render_template("file.html")
+    
+    
+    
+    return jsonify(noticias_felizes)
+    
+    
+@app.route('/triste')
+def ntristes():
+    
+    
+    time.sleep(3)
+    
+    return jsonify(noticias_tristes)
 
 
 app.run()
