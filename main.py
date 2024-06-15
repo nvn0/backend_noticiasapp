@@ -107,7 +107,7 @@ def classificar_dict_estatico():
         #receber_classificacao = get_classification(i["Content"])
         #print("clasificacao do azure:", receber_classificacao)
         
-        classificacao = Classificao_llama3(i["Content"])
+        classificacao = Classificacao_llama3(i["Content"])
         
         
         #if receber_classificacao != 'Accept':
