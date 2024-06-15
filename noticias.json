@@ -12,18 +12,6 @@
 		"URL": "news.com"
 	},
 	{
-		"Title":"Comemorações do 25 de abril",
-		"Classification": "",
-		"Content": "Comemorações do 25 de abril",
-		"URL": "news.com"
-	},
-	{
-		"Title":"Novo Ferrari",
-		"Classification": "",
-		"Content": "Novo modelo da ferrari",
-		"URL": "news.com"
-	},
-	{
 		"Title":"Autocarro tem acidente",
 		"Classification": "y",
 		"Content": "Grupo de jovens defecientes morre em acidente de autocarro",
@@ -34,5 +22,17 @@
 		"Classification": "y",
 		"Content": "Assaltante rouba idoso de 80 anos em plena luz do dia, este tem ataque cardiaco e está em estádo grave no hospital",
 		"URL": "news.com"
-	}
+	},
+    {
+        "Title": "Crise Ambiental",
+        "Classification": "y",
+        "Content": "Desmatamento na Amazônia atinge níveis alarmantes, ameaçando espécies nativas e agravando as mudanças climáticas.",
+        "URL": "environmentwatch.com"
+    },
+	{
+        "Title": "Desemprego em Alta",
+        "Classification": "y",
+        "Content": "Taxa de desemprego atinge recorde histórico, com milhões de pessoas lutando para encontrar trabalho e sustentar suas famílias.",
+        "URL": "economynews.com"
+    }
 ]

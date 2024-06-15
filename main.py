@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 from azureapi import *
+from query import *
 import json
 import os
 import time
@@ -23,113 +24,157 @@ dicionario = carregar_json_para_dicionario(caminho_arquivo_json)
 print("DICIONARIO: ", dicionario)
 
 lista_final = []
-
+lista_temp = []
 
 def get_noticias():
 
-    
+    while True:
+        #lista_final.clear()
+        
+        try:
+            r = requests.get("https://newsdata.io/api/1/latest?apikey=pub_46252bc7b72ef0d7a12c35b8bf4b299bb2090&language=pt")
+            print(r)
 
-    try:
-        r = requests.get("api_url")
-        print(r)
+        except:
+            print("erro ao aceder à api")
+        else:
+            data = r.json()
+            print(data)
+            
+            max_results = 15
+            results = data.get('results', [])
+            for result in results[:max_results]:
+                #link = result['link']
+                #title = result['title']
+                #description = result['description']
+                
+                
+                noticia = {
+                    "Title": result['title'],
+                    "Classification": "",
+                    "Content": result['description'],
+                    "URL": result['link']
+                }
+            
+                lista_temp.append(noticia)
+                
+        print(lista_temp)
+        Classificar()
+        time.sleep(700)
+        
+        
+        #dicionario.clear()
 
 
-        dados = r.json()
-        print(dados)
-    except:
-        print("erro ao aceder à api")
-    else:
+
+
+
+
+
+
+
+
+
+
+def Classificar():
+
+    for i in lista_temp:         
+        
+        classificacao = Classificacao_llama3(i["Content"])    
+
+        
+        print(classificacao)
+
         noticia = {
-            "Title":dados["Title"],
-            "Classification": "",
-            "Content": dados["Content"],
-            "URL": dados["URL"]
+            "Title":i["Title"],
+            "Classification": classificacao,
+            "Content": i["Content"],
+            "URL": i["URL"]
         }
         
         lista_final.append(noticia)
         
-    time.sleep(700)
-    
-    lista_final.clear()
+   
+    time.sleep(20)
 
 
+def classificar_dict_estatico():
 
+    for i in dicionario:      
+        
 
+        #receber_classificacao = ""
+        #receber_classificacao = get_classification(i["Content"])
+        #print("clasificacao do azure:", receber_classificacao)
+        
+        classificacao = Classificao_llama3(i["Content"])
+        
+        
+        #if receber_classificacao != 'Accept':
+        #    classificacao = "Triste"
+        #else:
+        #    classificacao = "Feliz"
+        
+        
+        # temp só pra nao gastar dinheiro do azure
+        #if x % 2 == 0:
+        #    classificacao = "Triste"
+        #else:
+        #    classificacao = "Feliz"
+        
+        
+        
+        print(classificacao)
 
-
-
-
-
-
-x = 10
-
-for i in dicionario:      
-
-
-    receber_classificacao = ""
-    #receber_classificacao = get_classification(i["Content"])
-    #print("clasificacao do azure:", receber_classificacao)
-    
-    classificacao = ""
-    
-    #if receber_classificacao != 'Accept':
-    #    classificacao = "Triste"
-    #else:
-    #    classificacao = "Feliz"
-    
-    
-    
-    if x % 2 == 0:
-        classificacao = "Triste"
-    else:
-        classificacao = "Feliz"
-    
-    #print(classificacao)
-
-    noticia = {
-        "Title":i["Title"],
-        "Classification": classificacao,
-        "Content": i["Content"],
-        "URL": i["URL"]
-    }
-    
-    lista_final.append(noticia)
-    x += 1
-    print(x)
-    print(lista_final)
-    
-    #print("Final", resposta)
+        noticia = {
+            "Title":i["Title"],
+            "Classification": classificacao,
+            "Content": i["Content"],
+            "URL": i["URL"]
+        }
+        
+        lista_final.append(noticia)
+        
+        #x += 1
+        
+        #print(lista_final)
+        
+        #print("Final", resposta)
+       
 
 
 
 noticias_felizes = []
 noticias_tristes = []
 
-def filtar_noticias():
+def filtrar_noticias():
 
-    noticias_felizes.clear()
-    noticias_tristes.clear()
+    while True:
 
-
-    for obj in lista_final:
-        # Verificar o valor do parâmetro "Classification"
-        if obj["Classification"] == "Feliz":
-            noticias_felizes.append(obj)
-        elif obj["Classification"] == "Triste":
-            noticias_tristes.append(obj)
-            
-    time.sleep(720)
+        noticias_felizes.clear()
+        noticias_tristes.clear()
 
 
-
-
+        for obj in lista_final:
+            # Verificar o valor do parâmetro "Classification"
+            if obj["Classification"] == "Feliz":
+                noticias_felizes.append(obj)
+            elif obj["Classification"] == "Triste":
+                noticias_tristes.append(obj)
+                
+        time.sleep(720)
 
 
 
 
 
-threading.Thread(target=get_noticias, daemon=True).start()
-threading.Thread(target=filtar_noticias, daemon=True).start()
+
+
+
+
+#threading.Thread(target=get_noticias, daemon=True).start()
+#threading.Thread(target=filtar_noticias, daemon=True).start()
+#threading.Thread(target=classiificar, daemon=True).start()
 
 
 @app.route('/')
@@ -164,4 +209,19 @@ def ntristes():
     return jsonify(noticias_tristes)
 
 
-app.run()
+
+if __name__ == '__main__':
+    #app.run()
+    classificar_dict_estatico()
+    threading.Thread(target=get_noticias, daemon=True).start()
+    #threading.Thread(target=filtrar_noticias, daemon=True).start()
+    app.run()
+    
+    
+    
+    
+    
+    
+    
+    
+    
