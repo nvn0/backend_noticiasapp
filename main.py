@@ -41,7 +41,7 @@ def get_noticias():
             data = r.json()
             print(data)
             
-            max_results = 15
+            max_results = 12
             results = data.get('results', [])
             for result in results[:max_results]:
                 #link = result['link']
