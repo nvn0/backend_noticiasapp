@@ -30,8 +30,8 @@ def Classificacao_llama3(frase):
     
     try:
         response = requests.post(url, data=json.dumps(payload), headers=headers)
-        response.raise_for_status()  # Raise exception for bad status codes
-        content = response.json()  # Return the response as JSON
+        response.raise_for_status()  
+        content = response.json()  
         return content["response"]
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
